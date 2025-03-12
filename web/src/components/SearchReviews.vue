@@ -12,22 +12,29 @@ export default {
       googleReviews: [],
       facebookReviews: [],
       googlePlaceId: '', 
-      facebookPageId: '', 
+      facebookPageId: '',
+      loading: false,
+      errorMessage: '' 
     };
   },
   methods: {
     async fetchGoogleReviews() {
       if (!this.googlePlaceId) {
-        alert('Por favor ingresa un Google Place ID');
+        this.errorMessage = 'Por favor ingresa un Google Place ID';
         return;
       }
+      this.loading = true;
+      this.errorMessage = '';
       try {
-        const response = await axios.get('http://localhost:8000/api/reseñas/google', {
+        const response = await axios.get('http://localhost:8000/api/reviews/google', {
           params: { place_id: this.googlePlaceId }
         });
         this.googleReviews = response.data.reviews || [];
       } catch (error) {
         console.error('Error al obtener reseñas de Google:', error);
+        this.errorMessage = 'Error al obtener las reseñas.';
+      } finally {
+        this.loading = false;
       }
     },
     async fetchFacebookReviews() {
@@ -36,7 +43,7 @@ export default {
         return;
       }
       try {
-        const response = await axios.get('http://localhost:8000/api/reseñas/facebook', {
+        const response = await axios.get('http://localhost:8000/api/reviews/facebook', {
           params: { page_id: this.facebookPageId }
         });
         this.facebookReviews = response.data || [];
@@ -55,7 +62,10 @@ export default {
     <input v-model="googlePlaceId" placeholder="Introduce Google Place ID" />
     <button @click="fetchGoogleReviews">Buscar</button>
 
-    <ReviewCarousel v-if="googleReviews.length" :reviews="googleReviews" />
+    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+
+    <div v-if="loading">Cargando reseñas...</div>
+    <ReviewCarousel v-else-if="googleReviews.length" :reviews="googleReviews" />
     <p v-else>No hay reseñas de Google disponibles.</p>
 
     <!-- Buscador para Facebook -->
@@ -98,5 +108,10 @@ input {
 button {
   padding: 8px 12px;
   cursor: pointer;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
 }
 </style>
