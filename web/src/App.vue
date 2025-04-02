@@ -46,17 +46,6 @@ export default {
 <template>
   <div id="app">
     <section>
-      <h1>Prueba de conexión:</h1>
-      <p>{{ message }}</p>
-    </section>
-
-    <section>
-      <h1>Reseñas de Google</h1>
-      <p v-if="loading">Cargando reseñas...</p>
-      <ReviewCarousel v-else :reviews="googleReviews" />
-    </section>
-
-    <section>
       <SearchReviews />
     </section>
   </div>
